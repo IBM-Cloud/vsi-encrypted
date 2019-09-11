@@ -1,0 +1,10 @@
+local.env
+generated.env
+dek
+apikey.json
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+vhd-util-standalone-3.5.0-xs.2+1.0_71.2.4.x86_64.rpm
+#vim swap files
+[._]*.sw[a-p]
