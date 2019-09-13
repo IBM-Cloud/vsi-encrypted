@@ -1,7 +1,8 @@
 #!/bin/bash
+# Initialize and verify prerequisites - set the default resource group and region verify prerequisites
 set -e
 
-source local.env
+source $(dirname "$0")/local.env
 
 echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
 ibmcloud target -g $RESOURCE_GROUP_NAME
@@ -37,6 +38,3 @@ echo ">>> Is curl installed?"
 curl -V
 
 echo "#Generated environment variables IMAGE and IMAGE_ENCRYPTED file names" > generated.env
-
-ibmcloud iam api-key-create $APIKEY -d 'e2e scripting generated' --file apikey.json
-echo generated apikey.json containing the api key.  See 090-cleanup.sh where this is deleted

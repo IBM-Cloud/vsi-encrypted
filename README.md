@@ -2,21 +2,15 @@
 
 ## Overview
 
-You can encrpt an existing *Classic* virtual server instance and provision a new virtual server instance with this encrptyed imaage [Using End to End (E2E) Encryption to provision an encrypted instan](https://cloud.ibm.com/docs/infrastructure/image-templates?topic=image-templates-using-end-to-end-e2e-encryption-to-provision-an-encrypted-instance)
+You can [Use End to End (E2E) Encryption to provision an encrypted instance](https://cloud.ibm.com/docs/infrastructure/image-templates?topic=image-templates-using-end-to-end-e2e-encryption-to-provision-an-encrypted-instance).  Start with an on premises file in Virtual Hardware Device, VHD format.  Encrypt the VHD on premises and end up with a Virtual Server Instance in the IBM cloud running directly from that encrypted VHD file.
 
-The steps are:
-
-1. Create a Cloud Object Storage instance and a bucket to store the captured image.
-
-## Capture a Classic VSI to VPC VSI
+## Created a VSI template image that is encrypted
 
 > The scripts do not check permissions. You must ensure you have the right permissions:
 > - to create Classic virtual server instances with public network,
 > - to capture Classic instance images,
 > - to create Cloud Object Storage instance,
-> - to create VPC, subnets, servers
-
-NOTE the step that creates the encrypted image on the working VSI instance creates an api key.  If the script completes correctly the api key will be deleted, but if the script fails you should delete it.
+> - to create Key Protect instance,
 
 1. Copy the configuration file and set the values to match your environment.
 
@@ -24,76 +18,70 @@ NOTE the step that creates the encrypted image on the working VSI instance creat
    cp template.local.env local.env
    ```
 
-1. Load the values into the current shell.
+1. Initialize and verify prerequisites - Set the default resource group and region verify prerequisites
 
    ```sh
-   source local.env
+   ./000-initialize-verify-prereqs.sh*
    ```
 
-1. Ensure you have the prerequisites to run the scripts.
-
-   ```sh
-   ./000-prereqs.sh
-   ```
-
-1. Create a Cloud Object Storage instance to capture the Classic instance image
+1. Create a Cloud Object Storage, COS, instance and create an initial bucket
 
    ```sh
    ./010-prepare-cos.sh
    ```
 
-1. Create a Classic virtual server instance.
+1. Create the ssh key in the cloud.  This will be used by all of the VSIs created.
 
    ```sh
-   ./020-create-classic-vm.sh
+   ./015-create-sshkey-in-cloud.sh
    ```
 
+1. Create the VSI representing the on premises instance.  The VHD will be created from this instance
+
+   ```sh
+   ./020-create-onprem-vm.sh
+   ```
    > The script installs Nginx on this instance. It will test that the virtual server instance is accessible through its public address and retrieve the Nginx home page.
 
-1. Capture an image of the Classic virtual server instance.
+1. Create a VHD image template of the on premises VSI.  Copy the image into a COS bucket.
 
    ```sh
    ./030-capture-classic-to-cos.sh
    ```
 
-1. Import the captured image into VPC.
+1. Create a VSI used to encrypt the VHD image.
 
    ```sh
-   ./040-import-image-to-vpc.sh
+   ./040-create-encrypter-vm.sh
    ```
 
-1. Create a VPC and a virtual server instance from the image.
-
+1. Encrypt the VHD image that is in COS: copy the VHD locally, encrypt with the data encryption key, copy encrypted VHD back to COS.  Do this on a VSI.
    ```sh
-   ./050-provision-vpc-vsi.sh
+   ./050-use-vsi-encrypter-to-encrypt-cos-image.sh
+   ```
+   > Create a data encryption key in the file dek if the dek file does not exist.
+
+1. Create a Key Protect service instance, a root key, and the authorization for vsi block storage to access the instance
+   ```sh
+   ./060-prepare-kp.sh
+   ```
+
+1. Create a VSI template encrypted image from the encrypted VHD image that in cos
+   ```sh
+   ./070-create-encrypted-vm-image-template.sh
+   ```
+
+1. Create a VSI from the encrypted template image
+   ```sh
+   ./080-create-test-vm.sh
    ```
 
    > The script will test that the virtual server instance is accessible through its public address and retrieve the Nginx home page to confirm the migration worked as expected.
 
 ## Cleanup
 
-To delete the *Classic* VSI, the Cloud Object Storage instance, the images, the VPC, run:
+Delete everything that was created: image templates, COS instance, Key Protect instance, VSI instances
 
    ```sh
-   ./060-cleanup.sh
+   ./090-cleanup.sh
    ```
-
--------------------
-ibm_compute_ssh_key.key - figure out what to do with this
-export TF_VAR_ibmcloud_api_key=$IBMCLOUD_API_KEY
-
-1. Capture an image of a classic VSI.
-1. Export the image to Cloud Object Storage.
-1. Import this image into VPC custom image list.
-1. Provision a VSI from this image.
-
-The scripts in this folder show an example to migrate a CentOS VSI running in the Classic Infrastructure to a VSI running in VPC on Classic. The scripts automate all steps you would find while going through the documentation:
-1. Create a Cloud Object Storage instance and a bucket to store the captured image.
-1. Set up an authorization between Cloud Object Storage and the VPC Image service.
-1. Create a VSI in the Classic Infrastructure.
-1. Install Nginx on the VSI so that later we can verify the new VSI also runs Nginx.
-1. Capture the VSI image and wait for the image to be ready.
-1. Copy the image to Cloud Object Storage.
-1. Import the image into the VPC Custom Image list once the image is ready in Cloud Object Storage.
-1. Provision a new VSI in VPC on Classic from this image.
-

@@ -39,9 +39,6 @@ function get_guid {
     exit 2
   fi
 }
-function get_ibmcloud_api_key() {
-  jq -r '.apikey' apikey.json
-}
 function get_kp_key_id() {
   kp_guid=$1
   kp_key_name=$2

@@ -1,15 +1,13 @@
 #!/bin/bash
-# Create a VHD image of the running, on premises, vsi instance and then copy the image into a COS bucket
+# Create a VHD image template of the on premises VSI.  Copy the image into a COS bucket.
 set -e
 set -o pipefail
 
-source local.env
-
-# include common functions
 source $(dirname "$0")/scripts/common.sh
+source $(dirname "$0")/local.env
 
 # capture image
-VSI_ID=$(cd vsi-onprem && terraform output VSI_ID)
+VSI_ID=$(cd tf-vsi-onprem && terraform output VSI_ID)
 
 echo "Capturing image for the on premises VSI $VSI_ID..."
 ibmcloud sl vs capture $VSI_ID -n ${PREFIX}-${VSI_ID}-image --note "capture of ${VSI_ID}"
@@ -24,10 +22,13 @@ do
 done
 echo ""
 
-# copy image from classic to COS
-echo "Copying image from classic to COS..."
+# copy image to COS
+echo "Copying image to COS..."
 ibmcloud sl call-api SoftLayer_Virtual_Guest_Block_Device_Template_Group copyToIcos \
-  --init ${VSI_IMAGE_ID} --parameters '[{"uri": "cos://'$COS_REGION'/'$COS_BUCKET_NAME'/'$PREFIX'-'$VSI_ID'-image.vhd", "ibmApiKey": "'$(get_ibmcloud_api_key)'"}]'
+  --init ${VSI_IMAGE_ID} --parameters '[{
+    "uri": "cos://'$COS_REGION'/'$COS_BUCKET_NAME'/'$PREFIX'-'$VSI_ID'-image.vhd",
+    "ibmApiKey": "'$IBMCLOUD_API_KEY'"
+  }]'
 
 cos_image="$PREFIX-$VSI_ID-image-0.vhd"
 echo "Waiting for the $cos_image to be ready in COS..."

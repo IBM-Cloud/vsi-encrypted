@@ -1,13 +1,9 @@
 #!/bin/bash
-
-# Prepare the Key Protect service by creating a KP instance, create a root key,
-# and an IAM authorization policy allowing the block storage device to access key protect
-# create the dek file with a 512 byte random key if it does not exist
+# Create a Key Protect service instance, a root key, and the authorization for vsi block storage to access the instance
 set -e
 set -o pipefail
 
-source ./local.env
-# include common functions
+source $(dirname "$0")/local.env
 source $(dirname "$0")/scripts/common.sh
 
 if ibmcloud resource service-instance $KP_SERVICE_NAME >/dev/null 2>&1; then
@@ -42,10 +38,3 @@ else
     Reader \
     --target-service-instance-id $KP_GUID
 fi
-
-if [ -e dek ]; then
-  echo using existing dek
-else
-  dd if=/dev/urandom of=dek bs=64 count=1
-fi
-

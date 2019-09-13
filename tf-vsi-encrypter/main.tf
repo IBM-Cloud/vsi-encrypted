@@ -6,18 +6,19 @@ provider "ibm" {
 
 # use the same key created when capturing the original image
 data "ibm_compute_ssh_key" "key" {
-  label      = "${var.prefix}-vm-to-encrypt"
+  label      = "${var.ssh_key_label}"
 }
 
 resource "ibm_compute_vm_instance" "vm" {
-  hostname          = "${var.prefix}-working-vm"
+  hostname          = "${var.prefix}-encrypter-vm"
   domain            = "howto.cloud"
   ssh_key_ids       = ["${data.ibm_compute_ssh_key.key.id}"]
-  image_id = "${var.image_id}"
+  os_reference_code = "CENTOS_7_64"
   datacenter        = "${var.classic_datacenter}"
   cores             = 1
-  memory            = 1024
+  memory            = 2048
 
+/*
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
@@ -31,6 +32,7 @@ resource "ibm_compute_vm_instance" "vm" {
       "yum install -y epel-release",
     ]
   }
+*/
 }
 
 output "VSI_ID" {
