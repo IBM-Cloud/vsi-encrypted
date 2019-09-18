@@ -21,8 +21,8 @@ You can [Use End to End (E2E) Encryption to provision an encrypted instance](htt
 1. Initialize and verify prerequisites - Set the default resource group and region verify prerequisites
 
    ```sh
-   ./000-initialize-verify-prereqs.sh*
-   ```
+   ./000-initialize-verify-prereqs.sh
+   ``
 
 1. Create a Cloud Object Storage, COS, instance and create an initial bucket
 

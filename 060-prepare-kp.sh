@@ -9,7 +9,7 @@ source $(dirname "$0")/scripts/common.sh
 if ibmcloud resource service-instance $KP_SERVICE_NAME >/dev/null 2>&1; then
   echo "Key Protect service $KP_SERVICE_NAME already exists"
 else
-  echo "Creating Cloud Object Storage Service..."
+  echo "Creating Key Protect Service..."
   ibmcloud resource service-instance-create -g $RESOURCE_GROUP_NAME $KP_SERVICE_NAME \
     kms "$KP_SERVICE_PLAN" $KP_REGION || exit 1
 fi
