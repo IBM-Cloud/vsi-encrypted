@@ -20,10 +20,10 @@ ibmcloud target -g $RESOURCE_GROUP_NAME
 ibmcloud target -r $REGION
 
 # download the vhd image
-IBMCLOUD_TRACE=false ibmcloud cos get-object --bucket "$COS_BUCKET_NAME" --key $IMAGE --region $COS_REGION $IMAGE
+IBMCLOUD_TRACE=false ibmcloud cos download --bucket "$COS_BUCKET_NAME" --key $IMAGE --region $COS_REGION $IMAGE
 
 # encrypt
 vhd-util copy -n $IMAGE -N $IMAGE_ENCRYPTED -k dek
 
 # copy up to COS
-IBMCLOUD_TRACE=false ibmcloud cos put-object --bucket "$COS_BUCKET_NAME" --key $IMAGE_ENCRYPTED --region $COS_REGION -body $IMAGE_ENCRYPTED
+IBMCLOUD_TRACE=false ibmcloud cos upload --bucket "$COS_BUCKET_NAME" --key $IMAGE_ENCRYPTED --region $COS_REGION -file $IMAGE_ENCRYPTED
