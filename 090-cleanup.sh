@@ -49,7 +49,6 @@ export TF_VAR_ssh_private_key_file=$SSH_PRIVATE_KEY
 export TF_VAR_classic_datacenter=$DATACENTER
 export TF_VAR_prefix=$PREFIX
 
-export TF_VAR_ssh_key_name=$VPC_SSH_KEY_NAME
 export TF_VAR_resource_group_name=$RESOURCE_GROUP_NAME
 export TF_VAR_image_id='12345678'
 

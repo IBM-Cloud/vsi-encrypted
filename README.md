@@ -1,10 +1,10 @@
-# Migrate a Classic infrastructure instance to a VPC infrastructure instance
+# Automate the Encryption of a Virtual Server Image for Deployment onto Classic Infrastructure
 
 ## Overview
 
 You can [Use End to End (E2E) Encryption to provision an encrypted instance](https://cloud.ibm.com/docs/infrastructure/image-templates?topic=image-templates-using-end-to-end-e2e-encryption-to-provision-an-encrypted-instance).  Start with an on premises file in Virtual Hardware Device, VHD format.  Encrypt the VHD on premises and end up with a Virtual Server Instance in the IBM cloud running directly from that encrypted VHD file.
 
-## Created a VSI template image that is encrypted
+## Create a VSI template image that is encrypted
 
 > The scripts do not check permissions. You must ensure you have the right permissions:
 > - to create Classic virtual server instances with public network,
